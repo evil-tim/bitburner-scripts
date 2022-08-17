@@ -1,0 +1,26 @@
+# n00dles          n00dles,foodnstuff
+# silver-helix     silver-helix,joesguns,zer0,phantasy,sigma-cosmetics,nectar-net,hong-fang-tea,harakiri-sushi,neo-net,CSEC,iron-gym,max-hardware
+# johnson-ortho    home,omega-net,netlink,avmnite-02h
+# rothman-uni      derp-001,rothman-uni,I.I.I.I
+# the-hub          derp-002,derp-003,the-hub,aevum-police
+# computek         derp-004,summit-uni,catalyst
+# syscore          derp-005,alpha-ent,run4theh111z,.,rho-construction,millenium-fitness
+# zb-institute     derp-006
+# ecorp            derp-007
+# megacorp         derp-008
+
+# n00dles          n00dles,foodnstuff,home
+
+# nectar-net       n00dles,foodnstuff,sigma-cosmetics,joesguns,nectar-net,hong-fang-tea,harakiri-sushi,home
+
+# silver-helix     n00dles,foodnstuff,sigma-cosmetics,joesguns,nectar-net,hong-fang-tea,harakiri-sushi,neo-net,zer0,max-hardware,iron-gym,CSEC,phantasy,silver-helix,CSEC,omega-net,avmnite-02h,the-hub,derp-001,derp-002,derp-003,derp-004,derp-005,derp-006,derp-007,derp-008,derp-009,home
+
+# nectar-net       n00dles,foodnstuff,sigma-cosmetics,joesguns,nectar-net
+# silver-helix     hong-fang-tea,harakiri-sushi,neo-net,zer0,max-hardware,iron-gym,CSEC,phantasy,silver-helix,CSEC,omega-net,avmnite-02h,the-hub,I.I.I.I,netlink,rothman-uni,aevum-police
+# the-hub          derp-001,derp-002,derp-003,derp-004,derp-005,derp-006,derp-007,derp-008,derp-009,home
+
+silver-helix	 derp-001,home
+the-hub          derp-002,derp-003
+rho-construction derp-004,derp-005
+syscore          derp-006,derp-007
+# univ-energy      derp-008,derp-009
