@@ -45,6 +45,7 @@ export async function main(ns) {
 					return 0;
 				})
 		];
+		const maxSec = servers.map(server => server.sec).reduce((a, b) => a >= b ? a : b);
 
 		ns.printf("%-20s│%-5s%s%-6s│%-6s%s%-6s%s%-7s│%-18s│%-19s│%-19s",
 			"Server",
@@ -106,7 +107,7 @@ export async function main(ns) {
 			const secSegment = ns.sprintf("%s%s%10s%s%s%3d%s%3d%s",
 				SEP_LEFT,
 				hackableServer ? FG_ORANGE_RED : CLEAR,
-				hackableServer ? drawBarSec(server.minSec, server.sec) : FG_GRAY + "──────────" + CLEAR,
+				hackableServer ? drawBarSec(server.minSec, server.sec, maxSec) : FG_GRAY + "──────────" + CLEAR,
 				CLEAR,
 				SEP_MID,
 				server.sec,
@@ -146,9 +147,9 @@ function drawBarMoney(money, maxMoney) {
 	return bar;
 }
 
-function drawBarSec(minSec, sec) {
-	const secRatio = Math.round(sec / 10);
-	const minSecRatio = Math.round(minSec / 10);
+function drawBarSec(minSec, sec, maxSec) {
+	const secRatio = Math.round(10 * (sec / maxSec));
+	const minSecRatio = Math.round(10 * (minSec / maxSec));
 	let bar = "";
 	for (let i = 1; i <= 10; i++) {
 		if (i <= minSecRatio) {
