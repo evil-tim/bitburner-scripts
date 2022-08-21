@@ -1,4 +1,5 @@
 const SUCCESS_THRESHOLD = 0.8;
+const KILL_GOAL = 100;
 const BOOTSTRAP_JOB = { company: "Joe's Guns", position: "Employee" };
 const CRIMES = [
 	{ code: "TRAFFICKARMS", name: "traffick illegal arms" },
@@ -44,9 +45,14 @@ function doCompanyJob(ns, currWork) {
 
 /** @param {NS} ns */
 function findBestCrime(ns) {
+	const needMoreKills = ns.getPlayer().numPeopleKilled < KILL_GOAL;
+	let foundHomicide = false;
 	for (const crime of CRIMES) {
+		if (!foundHomicide) {
+			foundHomicide = crime.code === "HOMICIDE";
+		}
 		const chance = ns.singularity.getCrimeChance(crime.name);
-		if (chance >= SUCCESS_THRESHOLD) {
+		if (chance >= SUCCESS_THRESHOLD && (!needMoreKills || foundHomicide)) {
 			return crime;
 		}
 	}
