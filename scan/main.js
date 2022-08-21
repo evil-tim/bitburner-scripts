@@ -45,7 +45,11 @@ export async function main(ns) {
 					return 0;
 				})
 		];
-		const maxSec = servers.map(server => server.sec).reduce((a, b) => a >= b ? a : b);
+		const maxSec = Math.max(
+			100,
+			...servers.map(server => server.minSec),
+			...servers.map(server => server.sec),
+		);
 
 		ns.printf("%-20s│%-5s%s%-6s│%-6s%s%-6s%s%-7s│%-18s│%-19s│%-19s",
 			"Server",
