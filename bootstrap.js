@@ -3,6 +3,7 @@ const FILES = [
     "/augs/main.js",
     "/batch/config/config.js",
     "/batch/config/config.txt",
+    "/batch/monitor/main.js",
     "/batch/v1/consts.js",
     "/batch/v1/grow.js",
     "/batch/v1/hack.js",
