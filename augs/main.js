@@ -35,18 +35,23 @@ export async function main(ns) {
 			return a.faction.localeCompare(b.faction);
 		}
 	});
-	ns.printf("%-30s│%-50s│%-6s",
+
+	const FACTION_LEN = 30;
+	const AUG_LEN = 60;
+	const PRICE_LEN = 6;
+
+	ns.printf("%-" + FACTION_LEN + "s│%-" + AUG_LEN + "s│%-" + PRICE_LEN + "s",
 		"Faction",
 		"Aug",
 		"Price",
 	);
-	ns.printf("%-30s┼%-50s┼%-6s",
+	ns.printf("%-" + FACTION_LEN + "s┼%-" + AUG_LEN + "s┼%-" + PRICE_LEN + "6s",
 		"──────────────────────────────",
-		"──────────────────────────────────────────────────",
+		"────────────────────────────────────────────────────────────",
 		"──────");
 	for (const augData of sortedAugData) {
 		const highlightColor = money >= augData.augPrice ? FG_GREEN : FG_RED;
-		ns.printf("%s%-30s%s│%s%-50s%s│%s%-6s%s",
+		ns.printf("%s%-" + FACTION_LEN + "s%s│%s%-" + AUG_LEN + "s%s│%s%-" + PRICE_LEN + "s%s",
 			highlightColor,
 			augData.faction,
 			CLEAR,
