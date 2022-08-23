@@ -22,6 +22,7 @@ const FILES = [
     "/crime/s-main.js",
     "/exp/main.js",
     "/exp/weaken.js",
+    "/faction/s-main.js",
     "/hacknet/main.js",
     "/rep/main.js",
     "/rep/s-main.js",
