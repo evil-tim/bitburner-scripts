@@ -1,5 +1,6 @@
 const CLEAR = "\x1b[0m";
 const FG_GREEN = "\x1b[38;5;46m";
+const FG_ORANGE = "\x1b[38;5;208m";
 const FG_RED = "\x1b[38;5;197m";
 
 /** @param {NS} ns */
@@ -17,11 +18,16 @@ export async function main(ns) {
 		for (const aug of augs) {
 			const augPrice = ns.singularity.getAugmentationPrice(aug);
 			const augRep = ns.singularity.getAugmentationRepReq(aug);
+
+			const missingPrereqs = ns.singularity.getAugmentationPrereq(aug)
+				.filter(prereq => !ownedAugs.includes(prereq));
+
 			if (aug == 'NeuroFlux Governor' || (factionRep >= augRep && !ownedAugs.includes(aug))) {
 				allAugData.push({
 					faction: faction,
 					aug: aug,
-					augPrice: augPrice
+					augPrice: augPrice,
+					missingPrereqs: missingPrereqs
 				});
 			}
 		}
@@ -50,7 +56,14 @@ export async function main(ns) {
 		"────────────────────────────────────────────────────────────",
 		"──────");
 	for (const augData of sortedAugData) {
-		const highlightColor = money >= augData.augPrice ? FG_GREEN : FG_RED;
+		const highlightColor =
+			money < augData.augPrice ?
+				FG_RED :
+				(
+					augData.missingPrereqs.length > 0 ?
+						FG_ORANGE :
+						FG_GREEN
+				);
 		ns.printf("%s%-" + FACTION_LEN + "s%s│%s%-" + AUG_LEN + "s%s│%s%-" + PRICE_LEN + "s%s",
 			highlightColor,
 			augData.faction,
