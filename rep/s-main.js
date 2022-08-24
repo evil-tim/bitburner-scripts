@@ -1,6 +1,7 @@
 /**
  * 0 - command - start | stop
  * 1 - faction name
+ * 2 - exclude servers
  */
 
 import * as scan from "/scan/scan.js";
@@ -27,8 +28,18 @@ async function start(ns) {
 		ns.singularity.workForFaction(faction, "hacking");
 	}
 
+	const hostnamesExcludeArg = ns.args[2];
+	const hostnamesExclude = hostnamesExcludeArg ?
+		hostnamesExcludeArg.split(",")
+			.map(hostname => hostname.trim())
+			.filter(hostname => hostname !== "")
+			.filter(hostname => ns.serverExists(hostname))
+			.filter(hostname => ns.hasRootAccess(hostname)) :
+		[];
+
 	const shareRamPerThread = ns.getScriptRam(SHARE_SCRIPT);
-	const allServers = getAllServers(ns);
+	const allServers = getAllServers(ns)
+		.filter(server => !hostnamesExclude.includes(server));
 
 	for (const server of allServers) {
 		if (!ns.fileExists(SHARE_SCRIPT, server)) {
