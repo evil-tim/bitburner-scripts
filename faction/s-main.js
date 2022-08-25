@@ -9,6 +9,8 @@ const PRIO_JOIN_FACTIONS = [
 	"Tetrads",
 	"The Syndicate",
 	"Speakers for the Dead",
+	"The Covenant",
+	"Illuminati",
 	"Daedalus"
 ];
 
