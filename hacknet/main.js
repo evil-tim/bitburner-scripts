@@ -2,7 +2,7 @@
  * 0 - min money to keep | "adaptive"
  */
 
- const MAX_NODES = 15;
+const MAX_NODES = 15;
 const MAX_LEVEL = 200;
 const MAX_RAM = 64;
 const MAX_CORES = 16;
