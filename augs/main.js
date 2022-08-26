@@ -1,3 +1,9 @@
+/**
+ * 0 - command - buy
+ */
+
+import * as terminal from '/util/terminal.js'
+
 const CLEAR = "\x1b[0m";
 const FG_GREEN = "\x1b[38;5;46m";
 const FG_ORANGE = "\x1b[38;5;208m";
@@ -5,12 +11,43 @@ const FG_RED = "\x1b[38;5;197m";
 
 /** @param {NS} ns */
 export async function main(ns) {
-	ns.tail();
-	ns.clearLog();
+	do {
+		const allAugData = getAllAugData(ns);
+		const sortedAugData = allAugData.sort((a, b) => {
+			if (a.augPrice > b.augPrice) {
+				return -1;
+			} else if (a.augPrice < b.augPrice) {
+				return 1;
+			} else if (a.augPrice == b.augPrice) {
+				return a.faction.localeCompare(b.faction);
+			}
+		});
+		sortedAugData.forEach((augData, i) => augData.index = i);
+
+		printAugsTable(ns, sortedAugData);
+		const augCount = sortedAugData.length;
+		if (augCount === 0) {
+			break;
+		}
+		if (ns.args[0] !== "buy") {
+			break;
+		}
+
+		let selectedIndex = NaN;
+		await terminal.terminalPrompt("Select aug to buy [0 - " + (augCount - 1) + "]").then(input => selectedIndex = Number(input));
+
+		if (!isNaN(selectedIndex) && selectedIndex >= 0 && selectedIndex < augCount) {
+			buyAug(ns, sortedAugData[selectedIndex]);
+		} else {
+			break;
+		}
+	} while (true);
+}
+
+/** @param {NS} ns */
+function getAllAugData(ns) {
 	const allAugData = [];
-	const player = ns.getPlayer();
-	const money = player.money;
-	const factions = player.factions;
+	const factions = ns.getPlayer().factions;
 	const ownedAugs = ns.singularity.getOwnedAugmentations(true);
 	for (const faction of factions) {
 		const factionRep = ns.singularity.getFactionRep(faction);
@@ -32,29 +69,29 @@ export async function main(ns) {
 			}
 		}
 	}
-	const sortedAugData = allAugData.sort((a, b) => {
-		if (a.augPrice > b.augPrice) {
-			return -1;
-		} else if (a.augPrice < b.augPrice) {
-			return 1;
-		} else if (a.augPrice == b.augPrice) {
-			return a.faction.localeCompare(b.faction);
-		}
-	});
+	return allAugData;
+}
 
+/** @param {NS} ns */
+function printAugsTable(ns, sortedAugData) {
+	const INDEX_LEN = 3;
 	const FACTION_LEN = 30;
 	const AUG_LEN = 60;
 	const PRICE_LEN = 6;
 
-	ns.printf("%-" + FACTION_LEN + "s│%-" + AUG_LEN + "s│%-" + PRICE_LEN + "s",
+	ns.tprintf("%" + INDEX_LEN + "s│%-" + FACTION_LEN + "s│%-" + AUG_LEN + "s│%-" + PRICE_LEN + "s",
+		"",
 		"Faction",
 		"Aug",
 		"Price",
 	);
-	ns.printf("%-" + FACTION_LEN + "s┼%-" + AUG_LEN + "s┼%-" + PRICE_LEN + "6s",
+	ns.tprintf("%" + INDEX_LEN + "s┼%-" + FACTION_LEN + "s┼%-" + AUG_LEN + "s┼%-" + PRICE_LEN + "6s",
+		"───",
 		"──────────────────────────────",
 		"────────────────────────────────────────────────────────────",
 		"──────");
+
+	const money = ns.getPlayer().money;
 	for (const augData of sortedAugData) {
 		const highlightColor =
 			money < augData.augPrice ?
@@ -64,7 +101,8 @@ export async function main(ns) {
 						FG_ORANGE :
 						FG_GREEN
 				);
-		ns.printf("%s%-" + FACTION_LEN + "s%s│%s%-" + AUG_LEN + "s%s│%s%-" + PRICE_LEN + "s%s",
+		ns.tprintf("%-" + INDEX_LEN + "d│%s%-" + FACTION_LEN + "s%s│%s%-" + AUG_LEN + "s%s│%s%" + PRICE_LEN + "s%s",
+			augData.index,
 			highlightColor,
 			augData.faction,
 			CLEAR,
@@ -76,6 +114,12 @@ export async function main(ns) {
 			CLEAR
 		);
 	}
+}
+
+/** @param {NS} ns */
+function buyAug(ns, augData) {
+	ns.tprintf("buy " + augData.aug);
+	ns.singularity.purchaseAugmentation(augData.faction, augData.aug);
 }
 
 function formatCurrency(value) {
