@@ -4,6 +4,10 @@
  * 2 - RAM - 2 ^ X
  */
 
+const CLEAR = "\x1b[0m";
+const FG_GREEN = "\x1b[38;5;46m";
+const FG_RED = "\x1b[38;5;197m";
+
 /** @param {NS} ns */
 export async function main(ns) {
 	let cmd = ns.args[0];
@@ -25,13 +29,33 @@ export async function main(ns) {
 
 /** @param {NS} ns */
 function printPrices(ns) {
+	const INDEX_LEN = 3;
+	const RAM_LEN = 8;
+	const PRICE_LEN = 7;
+
+	ns.tprintf("%" + INDEX_LEN + "s│%-" + RAM_LEN + "s│%-" + PRICE_LEN + "s",
+		"",
+		"RAM",
+		"Price",
+	);
+	ns.tprintf("%" + INDEX_LEN + "s┼%-" + RAM_LEN + "s┼%-" + PRICE_LEN + "6s",
+		"───",
+		"────────",
+		"───────");
+
+	const money = ns.getPlayer().money;
 	for (let i = 1; i <= 20; i++) {
 		const ramValue = Math.pow(2, i);
 		const cost = ns.getPurchasedServerCost(ramValue);
-		ns.tprintf("%2d - %7s - %6s",
+		const highlightColor = money < cost ? FG_RED : FG_GREEN;
+		ns.tprintf("%-" + INDEX_LEN + "d│%s%" + RAM_LEN + "s%s│%s%" + PRICE_LEN + "s%s",
 			i,
+			highlightColor,
 			ns.nFormat(ramValue * 1e9, "0.0b"),
-			formatCurrency(cost)
+			CLEAR,
+			highlightColor,
+			formatCurrency(cost),
+			CLEAR,
 		);
 	}
 }
