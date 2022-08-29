@@ -1,6 +1,6 @@
 const BASE_URL = "https://raw.githubusercontent.com/evil-tim/bitburner-scripts/main";
 const FILES = [
-    "/augs/main.js",
+    "/augs/s-main.js",
     "/batch/config/config.js",
     "/batch/config/config.txt",
     "/batch/monitor/main.js",
