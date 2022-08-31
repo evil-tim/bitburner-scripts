@@ -23,6 +23,7 @@ const FILES = [
     "/exp/main.js",
     "/exp/weaken.js",
     "/faction/s-main.js",
+    "/gang/main.js",
     "/hacknet/f-main.js",
     "/hacknet/main.js",
     "/rep/main.js",
