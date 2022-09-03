@@ -23,8 +23,10 @@ export async function main(ns) {
 		},
 		{
 			name: "HN",
-			color: color1,
-			generator: () => "$" + ns.nFormat(getTotalHNProduction(ns), "0.000a") + "/sec"
+			color: hasHNServers(ns) ? color2 : color1,
+			generator: hasHNServers(ns) ?
+				() => ns.nFormat(getTotalHNProduction(ns), "0.000a") + "H/sec" :
+				() => "$" + ns.nFormat(getTotalHNProduction(ns), "0.000a") + "/sec"
 		},
 		{
 			name: "Hash",
@@ -39,6 +41,16 @@ export async function main(ns) {
 		await extrastats.updateRows(stats);
 		await ns.sleep(1000);
 	}
+}
+
+/** @param {NS} ns */
+function hasHNServers(ns) {
+	return ns.getPlayer().bitNodeN === 9 ||
+		ns.singularity
+			.getOwnedSourceFiles()
+			.filter(sf => sf.n === 9)
+			.filter(sf => sf.lvl > 0)
+			.length > 0;
 }
 
 /** @param {NS} ns */

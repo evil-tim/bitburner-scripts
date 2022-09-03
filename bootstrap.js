@@ -38,6 +38,7 @@ const FILES = [
     "/solver/max_subarr.js",
     "/solver/path.js",
     "/stats/main.js",
+    "/stats/s-main.js",
     "/util/extrastats.js",
     "/util/terminal.js",
 ];
