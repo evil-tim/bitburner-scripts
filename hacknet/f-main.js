@@ -1,5 +1,6 @@
 /**
  * 0 - min money to keep | "adaptive"
+ * 1 - criteria "money" | "hash"
  */
 
 const MAX_NODES = 20;
@@ -23,11 +24,8 @@ export async function main(ns) {
 	while (true) {
 		const upgrades = getPossibleUpgrades(ns);
 
-		const sortedUpgrades = upgrades.sort((a, b) =>
-			a.gainRatePerCost === b.gainRatePerCost ?
-				0 :
-				a.gainRatePerCost > b.gainRatePerCost ?
-					-1 : 1
+		const sortedUpgrades = upgrades.sort(
+			ns.args[1] && ns.args[1] === "hash" ? sortByHashRateGain : sortByMoneyGain
 		);
 		const bestUpgrade = sortedUpgrades.length > 0 ? sortedUpgrades[0] : null;
 
@@ -58,6 +56,18 @@ export async function main(ns) {
 
 		await ns.sleep(1000);
 	}
+}
+
+function sortByMoneyGain(a, b) {
+	return a.gainRatePerCost === b.gainRatePerCost ? 0 :
+		a.gainRatePerCost > b.gainRatePerCost ?
+			-1 : 1;
+}
+
+function sortByHashRateGain(a, b) {
+	return a.hashRatePerCost === b.hashRatePerCost ? 0 :
+		a.hashRatePerCost > b.hashRatePerCost ?
+			-1 : 1;
 }
 
 /** @param {NS} ns */
@@ -105,6 +115,8 @@ class HacknetNodeAction {
 	costFormatted;
 	gainRate;
 	gainRatePerCost;
+	hashRate;
+	hashRatePerCost;
 	action;
 
 	constructor(action) {
@@ -138,6 +150,8 @@ class BuyNodeAction extends HacknetNodeAction {
 		this.costFormatted = ns.nFormat(this.cost, "0.000a");
 		this.gain = playerMult * ns.formulas.hacknetNodes.moneyGainRate(1, 1, 1);
 		this.gainRatePerCost = this.gain / this.cost;
+		this.hashRate = ns.formulas.hacknetServers.hashGainRate(1, 0, 1, 1);
+		this.hashRatePerCost = this.hashRate / this.cost;
 	}
 
 	desc() {
@@ -172,6 +186,10 @@ class UpgradeNodeLevelAction extends UpgradeNodeAction {
 		const upgradeGain = playerMult * ns.formulas.hacknetNodes.moneyGainRate(nodeStats.level + 1, nodeStats.ram, nodeStats.cores);
 		this.gain = upgradeGain - baseGain;
 		this.gainRatePerCost = this.gain / this.cost;
+		const baseHashRate = ns.formulas.hacknetServers.hashGainRate(nodeStats.level, 0, nodeStats.ram, nodeStats.cores);
+		const upgradeHashRate = ns.formulas.hacknetServers.hashGainRate(nodeStats.level + 1, 0, nodeStats.ram, nodeStats.cores);
+		this.hashRate = upgradeHashRate - baseHashRate;
+		this.hashRatePerCost = this.hashRate / this.cost;
 	}
 
 	desc() {
@@ -195,6 +213,10 @@ class UpgradeNodeRamAction extends UpgradeNodeAction {
 		const upgradeGain = playerMult * ns.formulas.hacknetNodes.moneyGainRate(nodeStats.level, nodeStats.ram + 1, nodeStats.cores);
 		this.gain = upgradeGain - baseGain;
 		this.gainRatePerCost = this.gain / this.cost;
+		const baseHashRate = ns.formulas.hacknetServers.hashGainRate(nodeStats.level, 0, nodeStats.ram, nodeStats.cores);
+		const upgradeHashRate = ns.formulas.hacknetServers.hashGainRate(nodeStats.level, 0, nodeStats.ram + 1, nodeStats.cores);
+		this.hashRate = upgradeHashRate - baseHashRate;
+		this.hashRatePerCost = this.hashRate / this.cost;
 	}
 
 	desc() {
@@ -219,6 +241,10 @@ class UpgradeNodeCoreAction extends UpgradeNodeAction {
 		const upgradeGain = playerMult * ns.formulas.hacknetNodes.moneyGainRate(nodeStats.level, nodeStats.ram, nodeStats.cores + 1);
 		this.gain = upgradeGain - baseGain;
 		this.gainRatePerCost = this.gain / this.cost;
+		const baseHashRate = ns.formulas.hacknetServers.hashGainRate(nodeStats.level, 0, nodeStats.ram, nodeStats.cores);
+		const upgradeHashRate = ns.formulas.hacknetServers.hashGainRate(nodeStats.level, 0, nodeStats.ram, nodeStats.cores + 1);
+		this.hashRate = upgradeHashRate - baseHashRate;
+		this.hashRatePerCost = this.hashRate / this.cost;
 	}
 
 	desc() {
