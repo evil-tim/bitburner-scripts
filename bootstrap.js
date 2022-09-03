@@ -25,6 +25,7 @@ const FILES = [
     "/faction/s-main.js",
     "/gang/main.js",
     "/hacknet/f-main.js",
+    "/hacknet/hash/main.js",
     "/hacknet/main.js",
     "/rep/main.js",
     "/rep/s-main.js",
