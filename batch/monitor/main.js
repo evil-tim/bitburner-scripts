@@ -3,6 +3,7 @@ import * as v2consts from "/batch/v2/consts.js"
 
 const GRAPH_HEIGHT = 110;
 const GRAPH_WIDTH = 200;
+const GRAPH_LEFT_PAD = 50;
 
 const ENTRY_HEIGHT = GRAPH_HEIGHT + 35;
 
@@ -37,18 +38,24 @@ export async function main(ns) {
 	const graphs = hostnames.map(hostname =>
 		[
 			new ScalingGraph(
-				GRAPH_HEIGHT, GRAPH_WIDTH, 50, 25,
+				GRAPH_HEIGHT, GRAPH_WIDTH, 25, GRAPH_LEFT_PAD,
 				"Money/Sec",
 				() => getMoneyPerSecond(ns, hostname)
 			),
 			new Graph(
-				GRAPH_HEIGHT, GRAPH_WIDTH, 50, 25,
+				GRAPH_HEIGHT, GRAPH_WIDTH, 25, GRAPH_LEFT_PAD,
 				"Money",
-				["0", formatCurrency(ns.getServerMaxMoney(hostname) / 2), formatCurrency(ns.getServerMaxMoney(hostname))],
+				() => {
+					return {
+						labelBot: "0",
+						labelMid: formatNumber(ns.getServerMaxMoney(hostname) / 2),
+						labelTop: formatNumber(ns.getServerMaxMoney(hostname)),
+					};
+				},
 				() => ns.getServerMoneyAvailable(hostname) / ns.getServerMaxMoney(hostname)
 			),
 			new ScalingGraph(
-				GRAPH_HEIGHT, GRAPH_WIDTH, 50, 25,
+				GRAPH_HEIGHT, GRAPH_WIDTH, 25, GRAPH_LEFT_PAD,
 				"Security",
 				() => ns.getServerSecurityLevel(hostname)
 			),
@@ -68,12 +75,14 @@ export async function main(ns) {
 				[
 					hostname,
 					"Security : " + ns.sprintf("%.2d", ns.getServerSecurityLevel(hostname)),
-					"Money    : " + formatCurrency(ns.getServerMoneyAvailable(hostname))
+					"Money    : " + formatNumber(ns.getServerMoneyAvailable(hostname))
 				]
 			);
-			serverGraphs[0].draw(ctx, 150, yPos);
-			serverGraphs[1].draw(ctx, 420, yPos);
-			serverGraphs[2].draw(ctx, 690, yPos);
+			let xPos = 150;
+			for (let i = 0; i <= 2; i++) {
+				serverGraphs[i].draw(ctx, xPos, yPos);
+				xPos += GRAPH_WIDTH + GRAPH_LEFT_PAD + 20;
+			}
 		});
 		await ns.sleep(1000);
 	}
@@ -135,7 +144,7 @@ function setupCanvas(ns, doc, tailWindow, height, width) {
 	return canv;
 }
 
-function formatCurrency(value) {
+function formatNumber(value) {
 	return Intl.NumberFormat('en-US', {
 		notation: "compact",
 		minimumFractionDigits: 1,
@@ -201,19 +210,19 @@ class Graph {
 	width;
 	leftPad;
 	topPad;
-	xLabels;
+	xLabelsGenerator;
 	label;
 	dataSource;
 	buffer;
 	bufferSize;
 
-	constructor(height, width, leftPad, topPad, label, xLabels, dataSource) {
+	constructor(height, width, topPad, leftPad, label, xLabelsGenerator, dataSource) {
 		this.height = height;
 		this.width = width;
 		this.leftPad = leftPad;
 		this.topPad = topPad;
 		this.label = label;
-		this.xLabels = xLabels;
+		this.xLabelsGenerator = xLabelsGenerator;
 		this.dataSource = dataSource;
 		this.buffer = [];
 		this.bufferSize = width - 2;
@@ -252,9 +261,10 @@ class Graph {
 	}
 
 	drawXLabels(ctx, x, graphY) {
-		text(ctx, GRAPH_TEXT_COLOR, x + 5, graphY + this.height - 5, this.xLabels[0]);
-		text(ctx, GRAPH_TEXT_COLOR, x + 5, graphY + Math.round(this.height / 2), this.xLabels[1]);
-		text(ctx, GRAPH_TEXT_COLOR, x + 5, graphY + 12, this.xLabels[2]);
+		const { labelBot, labelMid, labelTop } = this.xLabelsGenerator();
+		text(ctx, GRAPH_TEXT_COLOR, x + 5, graphY + this.height - 5, labelBot);
+		text(ctx, GRAPH_TEXT_COLOR, x + 5, graphY + Math.round(this.height / 2), labelMid);
+		text(ctx, GRAPH_TEXT_COLOR, x + 5, graphY + 12, labelTop);
 	}
 
 	drawData(ctx, graphX, graphY) {
@@ -273,8 +283,9 @@ class Graph {
 
 class ScalingGraph extends Graph {
 
-	constructor(height, width, leftPad, topPad, label, dataSource) {
-		super(height, width, leftPad, topPad, label, ["", "", ""], dataSource);
+	constructor(height, width, topPad, leftPad, label, dataSource) {
+		super(height, width, topPad, leftPad, label, null, dataSource);
+		this.xLabelsGenerator = this.generateXLabels;
 	}
 
 	getScalingFloor() {
@@ -298,14 +309,15 @@ class ScalingGraph extends Graph {
 		return (value) => (value - scalingFloor) / scalingRange;
 	}
 
-	drawXLabels(ctx, x, graphY) {
+	generateXLabels() {
 		const scalingFloor = this.getScalingFloor();
 		const scalingCeil = this.getScalingCeil();
 
-		this.xLabels[0] = formatCurrency(scalingFloor);
-		this.xLabels[1] = formatCurrency((scalingCeil + scalingFloor) / 2);
-		this.xLabels[2] = formatCurrency(scalingCeil);
-		super.drawXLabels(ctx, x, graphY);
+		return {
+			labelBot: formatNumber(scalingFloor),
+			labelMid: formatNumber((scalingCeil + scalingFloor) / 2),
+			labelTop: formatNumber(scalingCeil),
+		};
 	}
 
 	drawData(ctx, graphX, graphY) {
